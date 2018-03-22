@@ -1,0 +1,185 @@
+---
+title: "Take Home Quiz 1"
+author: "Huy Pham (41204883)"
+date: "21 March 2018"
+output:
+  word_document: default
+  pdf_document: default
+---
+Question 1 [10 marks]
+The Fibonacci sequence is a famous sequence in mathematics. The first two
+elements are defined as 1 and 1. Subsequent elements are defined as the sum
+of the preceding two elements. Thus, the third element is 2 (= 1 + 1), the
+fourth element is 3 (= 1 + 2), the fifth element is 5 (= 2 + 3), etc.
+Write a program in R to calculate the first n Fibonacci numbers, given
+n. That is, given n, your code should output the first n numbers of the
+Fibonacci sequence.
+```{r}
+fibonacci<-function(n){x<-c(1,1)
+for (i in 3:n) x[i]=x[i-2]+x[i-1]
+return(x)}
+fibonacci(3)
+fibonacci(4)
+fibonacci(5)
+fibonacci(10)
+```
+
+Explanation of the code: we are looping a function. function follows the standard
+form function (argument){(formula)}. But we will have to add extra to loop it.
+to loop it requires the "for" command. In this case we are saying for all i from
+3 to whatever value n. But first we tell it the starting two i values, which
+in the fibonacci sequence is 1 and 1. Then we write the formula, but put the i 
+inside square brackets [] which tells r to return the contents of a vector. Note: these squared brackets are like commands not gramatical or mathematical brakcets. Now, the loop "for" command will work. In terms of the formula we tell r we want
+to sum whatever value of the x vector is recalled from the i-2 iteration 
+with whatever value is recalled from the i-1 iteration. We need to tell the function
+return x or it won't print anything out. We also need new lines or else it will 
+produce an error.
+
+Question 2 [10 marks]
+In five hundred words (one page maximum) summarise the important points
+made in Mark Pesce's article The Last Days of Reality (one of the readings
+for week 01).
+
+Question 3 [15 marks]
+We have a spreadsheet, PersonenSchaden.csv which contains information
+on 22 036 settled personal injury insurance claims. These claims arose from
+accidents occurring from July 1989 through to January 1999. Claims settled
+with zero payment are not included.
+Details of the variables are given in table 1, below.
+a. [1 mark] Read the data into R and name it dataset.
+
+```{r}
+setwd("C:/Users/pc/Documents")
+dataset<-read.csv("PersonenSchaden.csv")
+```
+
+b. [1 mark] Calculate the mean, variance and standard deviation of the
+total variable (settled amounts). What is the largest settled claim?
+The smallest? The median? The bottom quartile? The top quartile?
+
+
+```{r }
+##first check if there are any missing values in the data, just in case
+table(is.na(dataset$total))
+##calculations as per question
+mean(dataset$total)
+var(dataset$total)
+sd(dataset$total)
+summary(dataset$total)
+
+```
+The mean claim is 38 367.22, the variance is 8277562110 the standard deivation is 90981.11.
+
+The largest settled claim is 4 486 000. The smallest claim is 10. The median claim is 13 850. The claim at the bottom quartile is 6297, and the claim at the top quartile is 35 120. 
+
+c. [1 mark] Plot a histogram of the dollar values of the claims.
+
+```{r}
+hist(dataset$total)
+##First I plotted just a plain histogram, but clearly this graph is too difficult to interpret. So I plotted another ##histogram with larger bins (200),  just to make the trend more clear. The issue of the extreme skew will be dealt with in later questions. 
+hist(dataset$total, breaks=200)
+```
+
+d. [1 mark] Plot a histogram of the settlement delay.
+
+```{r}
+hist(dataset$finmonth)
+```
+
+e. [2 marks] Plot a histogram of the legal representation variable, but
+modify the vertical axis so it is a percentage of total claims. That
+is, your figure will indicate the proportion of cases which are legally
+represented (and not).
+
+```{r}
+hist.with.percentages<-hist(dataset$legrep)
+hist.with.percentages$density = hist.with.percentages$counts/sum(hist.with.percentages$counts)
+plot(hist.with.percentages, freq=F, yaxt="n", axis(2, at=seq(0,1,by=.2),  
+labels=paste(100*seq(0,1,by=.2), "%") ))
+```
+
+f. [1 mark] Plot a histogram of the injury code, but modify the vertical
+axis so it is a percentage of total claims. That is, your figure indicates
+the proportion of various injury codes.
+
+```{r}
+##I have completed this task in two ways. The first way I find is more direct, but the question clearly asks for a histogram, which I interpret as having bars which represents bins of data. As such, I will make a second graph which is an actual histogram.
+
+##First way
+
+for (i in names(dataset[2:6])){
+print(sum(table(dataset[i])))
+}
+
+22036+11440+22036+4107+2310
+
+for (i in names(dataset[2:6])){
+  print(sum(table(dataset[i]))/61929)
+}
+
+plot.prop.inj<-c(0.3558268, 0.1847277, 0.3558268, 0.06631788, 0.03730078)
+
+plot(plot.prop.inj)
+
+##second way
+x<-hist(plot.prop.inj)
+x$density=plot.prop.inj
+plot(x, freq=F)
+x<-rep(c(1,2,3,4,5), times=c(22036,11440,22036,4107,2310))
+## I got the values to enter into x from the previous method
+x2<-hist(x)
+x2$density = x2$counts/sum(x2$counts)
+plot(x2, freq=F, yaxt="n", axis(2, at=seq(0,0.5,by=.1),  
+                                  labels=paste(100*seq(0,0.5,by=.1), "%") ))
+```
+
+
+g. [2 marks] Comment on your four plots above.
+
+The histogram of total claims appears to be following some kind of exponential distribution, with almost all values stacking into the first bin values, and then an extremely rapid decrease. The extreme skewness of the plot makes it difficult to even make out the existence of high values, and so, a log transform could make this plot more interpretable.
+The histogram of finalization month appears negatively skewed, that is, it has higher bins towards larger values of finalization month. 
+The histogram of legal representation shows that above 65% of people have legal representation, and slightly under 35% of people have no representation. 
+The histogram of injury type shows that injury 1 and 3 are the most common, with each one accounting for 35% of the claims, followed by injury 2 which accounts for 18% of the claims, followed by claim four, which accounts for 6%, and finally claim 5 which accounts for under 4% of the claims. 
+
+
+h. [1 mark] Plot a histogram of the log dollar values of the claims.
+
+```{r}
+hist(log(dataset$total))
+```
+
+i. [2 marks] Plot claim size (y-axis) against operational time (x-axis).
+Plot log claim size (y-axis) against operational time (x-axis).
+
+```{r}
+plot(dataset$op_time,(dataset$total))
+
+plot(dataset$op_time,log(dataset$total))
+```
+
+j. [1 mark] Comment on your three plots above.
+
+The histogram of the log of total claims appears normally distributed around 9 orders of magnitude. This is to be expected, as we had noted before, that the untransformed total claims was extremely skewed, appearing to be exponentially distributed. Log transforming it and thus chaning the x axis has made it more interpretable. 
+
+There appears to almost no relationship between total claims and operational time with almost all data points clustered at the bottom end of total claims. There are very obvious outliers at extremely high end of total claims. 
+
+Log transforming the data reveals a more positive linear between log total of claims and operational time. However, there appears to be more variability in data points at lower values of log of total claims, across all levels operational time.  
+
+
+k. [2 marks] Modify your scatterplot of log claim size against operational
+time so that legal representation is indicated by the colour of the plotted
+points. Comment on your results.
+
+```{r}
+##first, we need to change legal representation into a factor, as right now, it is clearly considered an integer.
+is.integer(dataset$legrep)
+dataset$legrep<-as.factor(dataset$legrep)
+is.factor(dataset$legrep)
+##now we plot as normal
+plot(dataset$op_time,log(dataset$total), col=dataset$legrep)
+```
+
+From this scatterplot, we can see that not having legal representation, coded as black, has a large cluster in the bottom left hand corner, around having smaller claims, but faster operational time. Moreover, in general, there appear to be many more lack datapoints (no legal representation) in the lower (smaller) side of the claims. Thus, it appears that people with no legal representation appear to gain smaller claims. 
+
+
+
